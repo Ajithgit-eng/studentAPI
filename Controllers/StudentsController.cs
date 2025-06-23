@@ -53,4 +53,25 @@ public class StudentsController : ControllerBase
         await _context.SaveChangesAsync();
         return NoContent();
     }
+[HttpGet("filter")]
+public async Task<ActionResult<IEnumerable<Student>>> FilterStudents(
+    string? gender, string? course, DateTime? dobStart, DateTime? dobEnd)
+{
+    var query = _context.Students.AsQueryable();
+
+    if (!string.IsNullOrEmpty(gender))
+        query = query.Where(s => s.Gender == gender);
+
+    if (!string.IsNullOrEmpty(course))
+        query = query.Where(s => s.Courses.Contains(course));
+
+    if (dobStart.HasValue)
+        query = query.Where(s => s.DateOfBirth >= dobStart);
+
+    if (dobEnd.HasValue)
+        query = query.Where(s => s.DateOfBirth <= dobEnd);
+
+    return await query.ToListAsync();
+}
+
 }
